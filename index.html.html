@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Anne Amelia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap');
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+        body {
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #ffe5ec 0%, #ffb3c1 100%);
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            color: #c9184a;
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .page.active { display: flex; }
+
+        h1, h2 { font-family: 'Pacifico', cursive; font-size: 2.2rem; margin-bottom: 15px; }
+        p { font-size: 1.1rem; line-height: 1.6; margin-bottom: 25px; color: #a61e4d; }
+
+        .btn {
+            background: linear-gradient(45deg, #ff4d6d, #ff85a1);
+            color: white; border: none;
+            padding: 18px 55px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 77, 109, 0.4);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            margin-top: 20px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+        }
+
+        .btn:active { transform: scale(0.95); }
+        .btn-small { padding: 14px 35px; font-size: 1.1rem; }
+        .icon-big { font-size: 5rem; margin-bottom: 10px; display: block; }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 3px solid #ffb3c1;
+        }
+
+        .card.flipped { background: #fff0f5; border-color: #ff4d6d; }
+        .card.matched { background: #ffeb3b; border-color: #ffd700; opacity: 0.5; }
+
+        .tank-heart { width: 150px; height: 140px; position: relative; margin: 20px auto; }
+        .tank-heart-outer {
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.4);
+            border: 5px solid white;
+            position: relative;
+            clip-path: path('M75,130 C20,80 -10,40 25,10 C50,-10 75,30 75,30 C75,30 100,-10 125,10 C160,40 130,80 75,130 Z');
+            overflow: hidden;
+        }
+
+        .tank-fill { width: 100%; height: 0%; background: linear-gradient(to top, #ff4d6d, #ff85a1); position: absolute; bottom: 0; left: 0; transition: height 0.05s linear; }
+        .heart-icon { font-size: 4rem; margin: 20px 0; }
+        .cake-icon { font-size: 7rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .env-box { width: 260px; height: 170px; position: relative; margin: 20px auto; cursor: pointer; }
+        .env-body { position: absolute; bottom: 0; left: 0; width: 260px; height: 200px; background: #fff; border-radius: 0 0 15px 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 1; }
+        .env-body-inner { width: 100%; height: 115%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; position: relative; z-index: 5; }
+        .env-flap { position: absolute; top: 0; left: 0; width: 260px; height: 50px; background: linear-gradient(to bottom, #fff 0%, #e8e8e8 100%); clip-path: polygon(0 0, 50% 100%, 100% 0); transition: all 0.5s ease; z-index: 2; }
+        .env-box.open .env-flap { transform: translateY(-60px) scale(0.3); opacity: 0; }
+
+        .hearts-rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .floating-heart { position: absolute; font-size: 22px; animation: fall linear forwards; opacity: 0.7; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; padding: 40px 30px; border-radius: 25px; text-align: center; max-width: 85%; width: 300px; }
+        .music-toggle { position: fixed; top: 15px; right: 15px; z-index: 999; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; font-size: 1.5rem; cursor: pointer; }
+        .wish-box { background: white; padding: 20px 30px; border-radius: 20px; margin: 15px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .wish-text { font-size: 1.5rem; font-family: 'Pacifico', cursive; color: #ff4d6d; }
+    </style>
+</head>
+<body>
+
+<button class="music-toggle" id="musicBtn">🎵</button>
+<div class="hearts-rain" id="rainContainer"></div>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+    <span class="icon-big">🎁</span>
+    <h1>Haii Anne Ameliaaa 💕</h1>
+    <p>Aku ada sesuatu buat kamu nih.<br>Siap?</p>
+    <button class="btn" id="btnPage1">Buka Sekarang!</button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+    <h2>Eitss Main Game Dulu Yuu🎮</h2>
+    <p>Kamu kan suka main game, jadi beresin dulu game ini yaa haha</p>
+    <p>Gampang ko cari 2 gambar yang sama! 🔎</p>
+    <div class="game-grid" id="gameGrid"></div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+    <h2>Isi Dulu Tanki Cintanya Dongg❤️</h2>
+    <p>Tekan & Tahan Sampai Penuh Yaaa!</p>
+    <div class="tank-heart">
+        <div class="tank-heart-outer">
+            <div class="tank-fill" id="tankFill"></div>
+        </div>
+    </div>
+    <span class="heart-icon">❤️</span>
+    <button class="btn" id="holdBtn">Teken Disini!</button>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="page4">
+    <div class="cake-icon">🎂</div>
+    <h2>Happy Birthday Sayangkuuu 🎉</h2>
+    <p>Sekarang tiup lilin dulu yuu<br>biar semua wish kamu terkabul!</p>
+    <button class="btn" id="btnCandle">TIUP!💨</button>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="page5">
+    <div class="wish-box">
+        <div class="wish-text">🙏 AAMIIN 🙏</div>
+        <p style="font-size: 1.3rem; margin-top: 10px;">Pasti wish nya mazda 3 hatchback merah yaa, aamiin hopefully terkabul yaa</p>
+    </div>
+    <button class="btn" id="btnAfterCandle">Masih Ada Nih</button>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page" id="page6">
+    <h2>Ada Surat Buat Kamu Nih 📩</h2>
+    <div class="env-box" id="envelope">
+        <div class="env-flap"></div>
+        <div class="env-body">
+            <div class="env-body-inner">💌</div>
+        </div>
+    </div>
+    <p>Klik Buat Buka Amplop nyaaa!</p>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page" id="page7">
+    <span class="icon-big">❤️</span>
+    <h2>It's Your Birthday💖</h2>
+    <p style="font-size: 1.05rem;">
+        Selamat ulang tahun sayangkuu cintakuu duniakuuuu semestakuuuuuu ❤️<br><br>
+
+        Semoga di umur yang sekarang kamu selalu sehat, bahagia, rezekinya lancar, apa yang kamu 	pengenin dan cita-citain bisa tercapai satu per satu. Galupa juga Keenara semoga sehat 	selalu, jadi anak yang pinter & shalehah aamiin. Semoga tahun ini jadi tahun yang 	lebih baik buat kamu dan lebih banyak hal-hal baik yang datang ke hidup kamu<br><br>
+
+        Aku cuma mau bilang makasih ya, sayang. Makasih udah hadir lagi di hidup aku<br>
+	Jujur aja, sebelum ada kamu aku ngerasa hidup ya kosong ngelakuin rutinitas tiap hari flat 	aja apa apa sendiri kemana mana sendiri kaya ada sesuatu yang rasanya kurang. Sampai 	akhirnya ada kamu, dan aku baru sadar kalau ternyata perasaan yang selama ini hilang itu 	balik lagi pas sama kamu<br><br>
+
+	Kamu bikin aku bahagia dengan cara yang bahkan kadang kamu nggak sadar. Sesimpel ngobrol 	chatan atau call sama kamu, ketemu kamu, pegang tangan kamu, apalagi meluk kamu, itu udah 	cukup buat bikin hari aku jadi jauh lebih baik rasanya kayak semua capek, pusing, dan 	rudet seharian langsung ilang pas ada kamu, makanya aku pengen ketemu terus pengen banyak 	ngabisin waktu sama kamu<br><br>
+
+	Dan kalau kamu pernah nanya kenapa aku bisa sayang cinta banget sama kamu, kenapa aku bisa 	sepeduli ini sama kamu, jawabannya cuma ya karena ini kamu, soalnya kamu orang yang aku 	butuhin dan orang yang selama ini aku cari. Aku nggak butuh kamu jadi orang lain atau 	berubah jadi apa pun, aku suka kamu ya karena kamu itu kamu<br><br>
+
+	Aku juga pengen kamu tahu kalau kamu itu pantas dicintai, sayangkuu, pantas dapet 	kebahagiaan, perhatian, dan semua hal baik yang ada. Apa pun yang pernah kamu lewatin, apa 	pun yang masih kamu perjuangin sampai sekarang, itu nggak pernah bikin kamu jadi 	kurang berharga. Justru aku kagum sama kamu karena kamu masih bisa terus jalan sampai hari 	ini<br><br>
+
+	Jadi di ulang tahun kamu ini, aku cuma berharap kamu lebih bahagia, lebih banyak senyum, 	dan nggak terlalu keras sama diri sendiri ya<br><br>
+
+	Oh iya, satu lagi. Jangan berubah ya, sayang. Tetap jadi kamu yang aku kenal sekarang. 	Tetap jadi kamu yang kadang nyebelin, kadang manja, kadang ngambek, tapi selalu jadi orang 	yang bikin aku nyaman dan bikin aku kangen, mungkin lebih di perbaiki lagi di komunikasi 	yaa sayangkuu<br><br>
+
+	Makasih ya, sayangku. Makasih karena udah datang dan bikin hidup aku lebih berwarna. 	Makasih karena udah bikin aku ngerasain bahagia lagi. Dan makasih karena sampai hari ini 	kamu masih ada di sini<br><br>
+
+	I LOVE YOU, ALWAYS ❤️❤️❤️🥹
+    </p>
+</div>
+
+<!-- MODAL SUKSES -->
+<div class="modal-overlay" id="successModal">
+    <div class="modal-content">
+        <div style="font-size: 4rem; margin-bottom: 10px;">🏆</div>
+        <h2>Wiih Jago!👏</h2>
+        <p>Buat kamu mah gaada apa apa nya ya wkwk</p>
+        <button class="btn btn-small" id="btnNext">Lanjuut</button>
+    </div>
+</div>
+
+<audio id="bgMusic" loop><source src="musik.mp3" type="audio/mpeg"></audio>
+
+<script>
+var musicStarted = false;
+var music = document.getElementById('bgMusic');
+
+document.getElementById('musicBtn').addEventListener('click', function() {
+    if (musicStarted) {
+        if (music.paused) { music.play(); } else { music.pause(); }
+    } else {
+        music.play().then(function() { musicStarted = true; }).catch(function(e){});
+    }
+});
+
+document.getElementById('btnPage1').addEventListener('click', function(){
+    if (!musicStarted) {
+        music.play().then(function() { musicStarted = true; }).catch(function(e){});
+    }
+    goToPage(2);
+});
+
+function goToPage(pageNum) {
+    var pages = document.querySelectorAll('.page');
+    for(var i=0; i<pages.length; i++) { pages[i].classList.remove('active'); }
+    document.getElementById('page'+pageNum).classList.add('active');
+    if(pageNum === 2) initGame();
+    if(pageNum === 3) setupTank();
+    if(pageNum === 6) startAutoRain();
+}
+
+document.getElementById('btnNext').addEventListener('click', function(){ document.getElementById('successModal').classList.remove('active'); goToPage(3); });
+document.getElementById('btnCandle').addEventListener('click', function(){ goToPage(5); });
+document.getElementById('btnAfterCandle').addEventListener('click', function(){ goToPage(6); });
+document.getElementById('envelope').addEventListener('click', function(){ document.getElementById('envelope').classList.add('open'); setTimeout(function(){ goToPage(7); }, 600); });
+
+var emojis = ['🍎','🍕','🌸','🚗','🎸','🐱'];
+var flippedCards = [];
+var matchedPairs = 0;
+
+function initGame() {
+    var grid = document.getElementById('gameGrid');
+    grid.innerHTML = ''; flippedCards = []; matchedPairs = 0;
+    var gameEmojis = emojis.concat(emojis);
+    gameEmojis.sort(function(){ return Math.random() - 0.5; });
+    for(var i=0; i<gameEmojis.length; i++) {
+        var card = document.createElement('div');
+        card.className = 'card'; card.innerHTML = '❓'; card.dataset.value = gameEmojis[i];
+        card.addEventListener('click', function(){ flipCard(this); });
+        grid.appendChild(card);
+    }
+}
+
+function flipCard(card) {
+    if(card.classList.contains('flipped') || card.classList.contains('matched')) return;
+    if(flippedCards.length >= 2) return;
+    card.classList.add('flipped'); card.innerHTML = card.dataset.value;
+    flippedCards.push(card);
+    if(flippedCards.length === 2) checkMatch();
+}
+
+function checkMatch() {
+    var c1 = flippedCards[0], c2 = flippedCards[1];
+    if(c1.dataset.value === c2.dataset.value) {
+        setTimeout(function(){
+            c1.classList.add('matched'); c2.classList.add('matched');
+            matchedPairs++; flippedCards = [];
+            if(matchedPairs === emojis.length) { setTimeout(function(){ document.getElementById('successModal').classList.add('active'); }, 500); }
+        }, 300);
+    } else {
+        setTimeout(function(){
+            c1.classList.remove('flipped'); c1.innerHTML = '❓';
+            c2.classList.remove('flipped'); c2.innerHTML = '❓';
+            flippedCards = [];
+        }, 700);
+    }
+}
+
+var tankFilled = 0; var tankInterval;
+function setupTank() {
+    var btn = document.getElementById('holdBtn');
+    btn.addEventListener('touchstart', function(e){ e.preventDefault(); startTanking(); },{passive:false});
+    btn.addEventListener('touchend', function(e){ e.preventDefault(); stopTanking(); });
+    btn.addEventListener('mousedown', startTanking);
+    btn.addEventListener('mouseup', stopTanking);
+    btn.addEventListener('mouseleave', stopTanking);
+}
+
+function startTanking() {
+    tankInterval = setInterval(function(){
+        tankFilled += 1.5;
+        if(tankFilled > 100) tankFilled = 100;
+        document.getElementById('tankFill').style.height = tankFilled + '%';
+        if(tankFilled >= 100) { clearInterval(tankInterval); tankFilled = 0; document.getElementById('tankFill').style.height = '0%'; goToPage(4); }
+    }, 30);
+}
+
+function stopTanking() { clearInterval(tankInterval); tankFilled = 0; document.getElementById('tankFill').style.height = '0%'; }
+
+function createHeart() {
+    var container = document.getElementById('rainContainer');
+    var heart = document.createElement('div');
+    heart.className = 'floating-heart'; heart.innerHTML = '❤️';
+    heart.style.left = (Math.random() * 100) + 'vw';
+    heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    container.appendChild(heart);
+    setTimeout(function(){ heart.remove(); }, 4000);
+}
+
+function startAutoRain() {
+    setTimeout(function(){ for(var i=0; i<20; i++) { setTimeout(createHeart, i*150); } }, 500);
+    setInterval(function(){ createHeart(); }, 500);
+}
+</script>
+</body>
+</html>
